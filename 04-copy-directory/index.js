@@ -40,7 +40,9 @@ async function copyDir() {
 
 async function copyDirectory(source, target) {
   await fs.promises.mkdir(target, { recursive: true });
-  const items = await fs.promises.readdir(source, { withFileTypes: true });
+  const items = await fs.promises.readdir(source, {
+    withFileTypes: true,
+  });
 
   for (let item of items) {
     const sourcePath = path.join(source, item.name);
@@ -54,4 +56,8 @@ async function copyDirectory(source, target) {
   }
 }
 
-copyDir();
+if (require.main === module) {
+  copyDir();
+}
+
+module.exports = { copyDirectory };

@@ -2,47 +2,37 @@ const fs = require('fs');
 const path = require('path');
 const stylesFolderPath = path.join(__dirname, 'styles');
 const outputBundlePath = path.join(__dirname, 'project-dist', 'bundle.css');
-const outputStream = fs.createWriteStream(outputBundlePath);
 
-fs.readdir(stylesFolderPath, (error, files) => {
-  if (error) {
-    console.error('Error reading the folder:', error);
-    return;
-  }
-
-  const cssFiles = files.filter((file) => path.extname(file) === '.css');
-  if (cssFiles.length === 0) {
-    console.log('No CSS files were found');
-    outputStream.end();
-    return;
-  }
-
-  console.debug('CSS files:', cssFiles);
-  let filesProcessed = 0;
-
-  cssFiles.forEach((file) => {
-    const filePath = path.join(stylesFolderPath, file);
-
-    fs.readFile(filePath, 'utf-8', (error, data) => {
-      if (error) {
-        console.error(`Error reading the file ${file}:`, error);
-        return;
-      }
-      outputStream.write(data + '\n');
-      console.debug(`Added contents of ${file}`);
-      filesProcessed += 1;
-
-      if (filesProcessed === cssFiles.length) {
-        outputStream.end();
-      }
+async function mergeStyles(stylesFolder, outputCSSPath) {
+  try {
+    const files = await fs.promises.readdir(stylesFolder, {
+      withFileTypes: true,
     });
-  });
-});
+    const cssFiles = files.filter(
+      (file) => file.isFile() && path.extname(file.name) === '.css',
+    );
 
-outputStream.on('finish', () => {
-  console.log('CSS files have been merged');
-});
+    if (cssFiles.length === 0) {
+      console.log('No CSS files were found');
+      return;
+    }
 
-outputStream.on('error', (error) => {
-  console.error('Error writing files:', error);
-});
+    const cssContent = await Promise.all(
+      cssFiles.map((file) =>
+        fs.promises.readFile(path.join(stylesFolder, file.name), 'utf-8'),
+      ),
+    );
+
+    await fs.promises.writeFile(outputCSSPath, cssContent.join('\n'));
+
+    console.log('CSS files have been merged');
+  } catch (error) {
+    console.error('Error merging CSS files:', error);
+  }
+}
+
+if (require.main === module) {
+  mergeStyles(stylesFolderPath, outputBundlePath);
+}
+
+module.exports = { mergeStyles };
