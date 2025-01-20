@@ -27,7 +27,7 @@ async function buildHTML() {
       );
       template = template.replace(new RegExp(tag, 'g'), componentContent);
     } catch {
-      console.error(`Component file ${componentName}.html not found.`);
+      console.error(`Component file ${componentName}.html not found`);
     }
   }
 
@@ -39,13 +39,13 @@ async function buildProject() {
     await fs.promises.mkdir(projectDist, { recursive: true });
 
     await buildHTML();
-    console.log('HTML built successfully.');
+    console.log('HTML built successfully');
 
     await mergeStyles(stylesFolder, outputCSSPath);
-    console.log('Styles merged successfully.');
+    console.log('Styles merged successfully');
 
     await copyDirectory(assetsFolder, outputAssetsFolder);
-    console.log('Assets copied successfully.');
+    console.log('Assets copied successfully');
   } catch (error) {
     console.error('Error during project build:', error);
   }
