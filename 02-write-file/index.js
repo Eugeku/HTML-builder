@@ -18,13 +18,13 @@ rl.on('line', (input) => {
   }
 });
 
-process.on('SIGINT', () => {
+rl.on('SIGINT', () => {
   exitProcess();
 });
 
 function exitProcess() {
+  console.log('Bye bye! Thanks for using the application!');
   fileStream.end();
   rl.close();
-  console.log('Bye bye! Thanks for using the application!');
   process.exit();
 }
